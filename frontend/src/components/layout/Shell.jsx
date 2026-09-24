@@ -5,7 +5,7 @@ import * as notifApi from '../../services/notifications';
 export default function Shell({ nav, roleLabel }) {
   const { user, logout } = useAuth(); const [open, setOpen] = useState(false); const [unread, setUnread] = useState(0); const loc = useLocation(); const tab = new URLSearchParams(loc.search).get('tab') || 'summary';
   useEffect(() => setOpen(false), [loc.pathname, loc.search]);
-  useEffect(() => { let on = true; const f = () => notifApi.list({ limit: 1 }).then((d) => on && setUnread(d.unread)).catch(() => {}); f(); const t = setInterval(f, 30000); window.addEventListener('notif-changed', f); return () => { on = false; clearInterval(t); window.removeEventListener('notif-changed', f); }; }, [loc.pathname]);
+  useEffect(() => { let on = true; const f = () => notifApi.list({ limit: 1 }).then((d) => on && setUnread(d.unread)).catch(() => {}); f(); const t = setInterval(f, 30000); window.addEventListener('notif-changed', f); return () => { on = false; clearInterval(t); window.removeEventListener('notif-changed', f); }; }, [loc.pathname, user._id]);
   return (
     <div className="shell">
       <a href="#main" className="skip">Skip to content</a>

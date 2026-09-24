@@ -10,7 +10,7 @@ import TicketActions from '../components/tickets/TicketActions';
 import { fmtDate, fmtAge } from '../utils/format';
 export default function TicketDetails() {
   const { id } = useParams(); const { user } = useAuth(); const staff = user.role !== 'student';
-  const { data, loading, error, reload } = useFetch(() => Promise.all([tickets.get(id), messages.list(id), tickets.history(id)]), [id]);
+  const { data, loading, error, reload } = useFetch(() => Promise.all([tickets.get(id), messages.list(id), tickets.history(id)]), [id, user._id]);
   if (loading && !data) return <div className="page"><Skeleton rows={8} h={22} /></div>;
   if (error && !data) return <div className="page"><ErrorBox message={error} onRetry={reload} /><p><Link to="/tickets">Back to tickets</Link></p></div>;
   const [t, msgs, hist] = data; const s = t.student;

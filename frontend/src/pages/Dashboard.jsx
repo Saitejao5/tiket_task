@@ -7,7 +7,7 @@ import { StatCard, BarList, TimeBars } from '../components/dashboard/widgets';
 import TicketTable from '../components/tickets/TicketTable';
 import { fmtAge } from '../utils/format';
 export default function Dashboard() {
-  const { user } = useAuth(); const r = user.role; const { data: d, loading, error, reload } = useFetch(() => dash.get(r), [r]);
+  const { user } = useAuth(); const r = user.role; const { data: d, loading, error, reload } = useFetch(() => dash.get(r), [r, user._id]);
   const greet = <div className="row between wrap"><div><h1>Hello, {user.name.split(' ')[0]}</h1><p className="muted">{r === 'student' ? 'Here is where your requests stand.' : r === 'staff' ? 'Your assigned work at a glance.' : 'Support operations overview.'}</p></div>{r === 'student' && <Link to="/tickets/new" className="btn primary">New support request</Link>}</div>;
   if (loading) return <div className="page">{greet}<Skeleton rows={6} h={28} /></div>;
   if (error) return <div className="page">{greet}<ErrorBox message={error} onRetry={reload} /></div>;

@@ -8,7 +8,7 @@ import TicketFilters from '../components/tickets/TicketFilters';
 export default function Tickets() {
   const { user } = useAuth(); const [sp, setSp] = useSearchParams(); const values = Object.fromEntries(sp.entries());
   const change = (patch) => { if (patch.reset) return setSp({}); const next = { ...values, ...patch }; if (!('page' in patch)) delete next.page; Object.keys(next).forEach((k) => !next[k] && delete next[k]); setSp(next); };
-  const key = sp.toString(); const { data, loading, error, reload } = useFetch(() => tickets.list({ ...values, limit: 15 }), [key]);
+  const key = sp.toString(); const { data, loading, error, reload } = useFetch(() => tickets.list({ ...values, limit: 15 }), [key, user._id]);
   return (
     <div className="page"><h1>{user.role === 'student' ? 'My tickets' : user.role === 'staff' ? 'Tickets' : user.role === 'manager' ? 'Department tickets' : 'All tickets'}</h1>
       <Card><TicketFilters role={user.role} userId={user._id} values={values} onChange={change} /></Card>
