@@ -12,7 +12,10 @@ module.exports = {
   jwtSecret: need('JWT_SECRET'),
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
   clientUrl: process.env.CLIENT_URL || 'http://localhost:5173',
-  clientOrigins: (process.env.CLIENT_URL || 'http://localhost:5173').split(',').map((origin) => origin.trim()).filter(Boolean),
+  clientOrigins: [
+    ...(process.env.CLIENT_URL || 'http://localhost:5173').split(','),
+    process.env.FRONTEND_URL || 'https://frontend-orcin-sigma-43.vercel.app',
+  ].map((origin) => origin.trim()).filter(Boolean),
   uploadDir: path.resolve(process.env.UPLOAD_DIR || 'uploads'),
   smtp: { host: process.env.SMTP_HOST, port: process.env.SMTP_PORT, user: process.env.SMTP_USER, password: process.env.SMTP_PASSWORD },
 };
