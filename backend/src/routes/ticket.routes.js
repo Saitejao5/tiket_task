@@ -1,0 +1,18 @@
+const r = require('express').Router();
+const c = require('../controllers/ticket.controller'), m = require('../controllers/message.controller');
+const auth = require('../middleware/auth'), role = require('../middleware/role'), validate = require('../middleware/validation'), { uploadFiles } = require('../middleware/upload'), v = require('../utils/validators');
+r.use(auth);
+r.post('/', role('student'), uploadFiles(), validate(v.ticketCreate), c.create);
+r.get('/', c.list);
+r.get('/:id', c.get);
+r.patch('/:id', validate(v.ticketUpdate), c.update);
+r.delete('/:id', role('admin'), c.remove);
+r.get('/:id/history', c.history);
+r.patch('/:id/status', role('staff', 'manager', 'admin'), validate(v.status), c.status);
+r.patch('/:id/priority', role('staff', 'manager', 'admin'), validate(v.priority), c.priority);
+r.patch('/:id/assign', role('manager', 'admin'), validate(v.assign), c.assign);
+r.post('/:id/reopen', validate(v.reason), c.reopen);
+r.post('/:id/close', c.close);
+r.get('/:ticketId/messages', m.list);
+r.post('/:ticketId/messages', uploadFiles(), validate(v.message), m.create);
+module.exports = r;

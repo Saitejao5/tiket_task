@@ -1,0 +1,13 @@
+import api, { data } from './api';
+const clean = (p) => Object.fromEntries(Object.entries(p).filter(([, v]) => v !== '' && v != null));
+export const list = (params) => data(api.get('/tickets', { params: clean(params) }));
+export const get = (id) => data(api.get(`/tickets/${id}`));
+export const create = (form) => data(api.post('/tickets', form));
+export const update = (id, b) => data(api.patch(`/tickets/${id}`, b));
+export const setStatus = (id, status) => data(api.patch(`/tickets/${id}/status`, { status }));
+export const setPriority = (id, priority) => data(api.patch(`/tickets/${id}/priority`, { priority }));
+export const assign = (id, assignedTo) => data(api.patch(`/tickets/${id}/assign`, { assignedTo }));
+export const reopen = (id, reason) => data(api.post(`/tickets/${id}/reopen`, { reason }));
+export const close = (id) => data(api.post(`/tickets/${id}/close`));
+export const history = (id) => data(api.get(`/tickets/${id}/history`));
+export const remove = (id) => data(api.delete(`/tickets/${id}`));

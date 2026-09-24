@@ -1,0 +1,10 @@
+const r = require('express').Router();
+const c = require('../controllers/dashboard.controller');
+const auth = require('../middleware/auth'), role = require('../middleware/role');
+r.use(auth);
+r.get('/student', role('student'), c.student);
+r.get('/staff', role('staff'), c.staff);
+r.get('/manager', role('manager', 'admin'), c.manager);
+r.get('/admin', role('admin'), c.admin);
+r.get('/workload', role('manager', 'admin'), c.workload);
+module.exports = r;

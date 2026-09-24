@@ -1,0 +1,14 @@
+const svc = require('../services/ticket.service');
+const { removeFiles } = require('../middleware/upload');
+const { asyncHandler, ok } = require('../utils/http');
+exports.create = asyncHandler(async (req, res) => { try { ok(res, await svc.create(req.user, req.body, req.files || []), 'Ticket created successfully', 201); } catch (e) { removeFiles(req.files); throw e; } });
+exports.list = asyncHandler(async (req, res) => ok(res, await svc.list(req.user, req.query), 'Tickets retrieved'));
+exports.get = asyncHandler(async (req, res) => ok(res, await svc.get(req.user, req.params.id)));
+exports.update = asyncHandler(async (req, res) => ok(res, await svc.update(req.user, req.params.id, req.body), 'Ticket updated'));
+exports.remove = asyncHandler(async (req, res) => { await svc.remove(req.user, req.params.id); ok(res, null, 'Ticket deleted'); });
+exports.status = asyncHandler(async (req, res) => ok(res, await svc.changeStatus(req.user, req.params.id, req.body.status), 'Status updated'));
+exports.priority = asyncHandler(async (req, res) => ok(res, await svc.changePriority(req.user, req.params.id, req.body.priority), 'Priority updated'));
+exports.assign = asyncHandler(async (req, res) => ok(res, await svc.assign(req.user, req.params.id, req.body.assignedTo), 'Ticket assigned'));
+exports.reopen = asyncHandler(async (req, res) => ok(res, await svc.reopen(req.user, req.params.id, req.body.reason), 'Ticket reopened'));
+exports.close = asyncHandler(async (req, res) => ok(res, await svc.close(req.user, req.params.id), 'Ticket closed'));
+exports.history = asyncHandler(async (req, res) => ok(res, await svc.history(req.user, req.params.id)));

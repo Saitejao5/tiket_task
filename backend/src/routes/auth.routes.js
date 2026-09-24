@@ -1,0 +1,12 @@
+const r = require('express').Router();
+const rateLimit = require('express-rate-limit');
+const env = require('../config/env');
+const c = require('../controllers/auth.controller');
+const auth = require('../middleware/auth'), validate = require('../middleware/validation'), v = require('../utils/validators');
+const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: env.nodeEnv === 'production' ? 20 : 300, standardHeaders: true, legacyHeaders: false, message: { success: false, message: 'Too many attempts. Please try again later.', error: 'TOO_MANY_REQUESTS' } });
+r.post('/register', limiter, validate(v.register), c.register);
+r.post('/login', limiter, validate(v.login), c.login);
+r.post('/logout', auth, c.logout);
+r.get('/me', auth, c.me);
+r.patch('/me', auth, validate(v.profile), c.updateMe);
+module.exports = r;

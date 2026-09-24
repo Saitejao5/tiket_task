@@ -1,0 +1,2 @@
+const { Schema, model } = require('mongoose');
+module.exports = model('SlaPolicy', new Schema({ name: { type: String, required: true, trim: true }, priority: { type: String, enum: ['Low', 'Medium', 'High', 'Urgent'], required: true, index: true }, firstResponseHours: { type: Number, required: true, min: 0.1 }, resolutionHours: { type: Number, required: true, min: 0.1 }, active: { type: Boolean, default: true } }, { timestamps: true }));
