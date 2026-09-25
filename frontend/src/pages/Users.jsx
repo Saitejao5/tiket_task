@@ -12,11 +12,14 @@ const BLANK = { name: '', email: '', password: '', role: 'student', studentId: '
 export default function Users() {
   const { user: me } = useAuth(); const toast = useToast(); const [role, setRole] = useState('student'); const [q, setQ] = useState(''); const dq = useDebounce(q); const [page, setPage] = useState(1);
   const { data, loading, error, reload } = useFetch(() => users.list({ role, search: dq, page, limit: 15 }), [role, dq, page]);
-  const [depts, setDepts] = useState([]); const [edit, setEdit] = useState(null); const [f, setF] = useState(BLANK); const [busy, setBusy] = useState(false); const [err, setErr] = useState(''); const [confirm, setConfirm] = useState(null);
-  useEffect(() => { admin.departments.list().then(setDepts).catch(() => {}); }, []);
+  const [depts, setDepts] = useState([]); const [deptLoading, setDeptLoading] = useState(false); const [deptError, setDeptError] = useState(''); const [edit, setEdit] = useState(null); const [f, setF] = useState(BLANK); const [busy, setBusy] = useState(false); const [err, setErr] = useState(''); const [confirm, setConfirm] = useState(null);
   useEffect(() => setPage(1), [role, dq]);
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
-  const open = (u) => { setEdit(u || {}); setErr(''); setF(u ? { ...BLANK, ...u, department: u.department?._id || '', password: '' } : { ...BLANK, role }); };
+  const loadDepartments = async () => {
+    setDeptLoading(true); setDeptError('');
+    try { setDepts(await admin.departments.list()); } catch (er) { setDeptError(errMsg(er)); } finally { setDeptLoading(false); }
+  };
+  const open = (u) => { setEdit(u || {}); setErr(''); setF(u ? { ...BLANK, ...u, department: u.department?._id || u.department || '', password: '' } : { ...BLANK, role }); loadDepartments(); };
   const save = async (e) => {
     e.preventDefault(); setBusy(true); setErr('');
     const b = { name: f.name, email: f.email, role: f.role, department: f.department || (edit._id ? '' : undefined), course: f.course, year: f.year, section: f.section, ...(f.role === 'student' ? { studentId: f.studentId } : {}), ...(f.password ? { password: f.password } : {}) };
@@ -33,7 +36,7 @@ export default function Users() {
           <Pagination p={data.pagination} onPage={setPage} /></>}</Card>
       {edit && <Modal title={edit._id ? 'Edit user' : 'Add user'} onClose={() => setEdit(null)}><form className="stack" onSubmit={save}>{err && <div className="errorbox" role="alert">{err}</div>}
         <div className="grid2"><Field label="Full name"><input required value={f.name} onChange={set('name')} /></Field><Field label="Email"><input type="email" required value={f.email} onChange={set('email')} /></Field></div>
-        <div className="grid2"><Field label="Role"><select value={f.role} onChange={set('role')} disabled={edit._id === me._id}>{TABS.map(([k, l]) => <option key={k} value={k}>{l.replace(/s$/, '')}</option>)}</select></Field><Field label="Department"><select value={f.department} onChange={set('department')}><option value="">None</option>{depts.map((d) => <option key={d._id} value={d._id}>{d.name}</option>)}</select></Field></div>
+        <div className="grid2"><Field label="Role"><select value={f.role} onChange={set('role')} disabled={edit._id === me._id}>{TABS.map(([k, l]) => <option key={k} value={k}>{l.replace(/s$/, '')}</option>)}</select></Field><Field label="Department" hint={deptError || (deptLoading ? 'Loading departments...' : '')}><select value={f.department} onChange={set('department')} disabled={deptLoading}><option value="">None</option>{depts.map((d) => <option key={d._id} value={d._id}>{d.name}</option>)}</select>{deptError && <button type="button" className="btn sm" onClick={loadDepartments}>Retry</button>}</Field></div>
         {f.role === 'student' && <><Field label="Student ID"><input required value={f.studentId || ''} onChange={set('studentId')} /></Field><div className="grid3"><Field label="Course"><input value={f.course || ''} onChange={set('course')} /></Field><Field label="Year"><input value={f.year || ''} onChange={set('year')} /></Field><Field label="Section"><input value={f.section || ''} onChange={set('section')} /></Field></div></>}
         <Field label={edit._id ? 'Reset password' : 'Password'} hint={edit._id ? 'Leave blank to keep the current password' : 'At least 8 characters'}><input type="password" minLength={8} required={!edit._id} value={f.password} onChange={set('password')} autoComplete="new-password" /></Field>
         <div className="row end"><button type="button" className="btn" onClick={() => setEdit(null)}>Cancel</button><button className="btn primary" disabled={busy}>{busy ? 'Saving…' : 'Save'}</button></div></form></Modal>}
